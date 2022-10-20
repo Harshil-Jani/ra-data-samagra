@@ -1,0 +1,23 @@
+{
+  "name": "ra-data-samagra",
+  "version": "0.1.0",
+  "description": "A Data Provider for react admin tailored to target the Samagra APIs consisting of GraphQL and Fusion Auth",
+  "main": "index.tsx",
+  "repository": "https://github.com/Harshil-Jani/ra-data-samagra",
+  "author": "Harshil-Jani",
+  "license": "MIT",
+  "dependencies": {
+    "@apollo/client": "^3.7.0",
+    "graphql": "^16.6.0",
+    "graphql-ast-types-browser": "^1.0.2",
+    "ra-core": "^4.4.3",
+    "ra-data-graphql": "^4.4.3",
+    "ra-data-hasura": "^0.5.3",
+    "ra-data-json-server": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.2.0",
+    "@types/lodash": "^4.14.186",
+    "@types/node": "18.11.2"
+  }
+}
