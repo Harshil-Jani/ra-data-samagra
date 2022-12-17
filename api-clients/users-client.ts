@@ -1,4 +1,6 @@
-export const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+import { baseURL } from "..";
+import { hasuraURL } from "..";
+export const BASE_URL = baseURL;
 export const clientGQL = (query: string, variables: any = {}) => {
   const userData = localStorage.getItem("userData")
     ? JSON.parse(localStorage.getItem("userData") as string)
@@ -8,7 +10,7 @@ export const clientGQL = (query: string, variables: any = {}) => {
     const token = userData?.user?.token;
     headers["Authorization"] = `Bearer ${token}`;
   }
-  return fetch(process.env.NEXT_PUBLIC_HASURA_URL as string, {
+  return fetch(hasuraURL as any, {
     method: "POST",
     headers: headers,
     body: JSON.stringify({ query, variables }),
@@ -108,10 +110,10 @@ export const client = async (
 };
 
 client.get = function (endpoint: string, customConfig: any = {}) {
-  let params = [];
+  let params: string[] = [];
   if (customConfig.params) {
     for (let p in customConfig.params) {
-      params.push(`${p}=${encodeURIComponent(customConfig.params[p])}`);
+      params.push(`${p}=${decodeURIComponent(customConfig.params[p])}`);
     }
   }
 

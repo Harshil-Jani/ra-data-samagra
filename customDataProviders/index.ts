@@ -25,6 +25,7 @@ export type { GetResponseParser } from "./getResponseParser";
 export { FetchType } from "./types";
 export { buildQuery };
 import { ApolloClient, InMemoryCache } from "@apollo/client";
+import { hasuraURL } from "..";
 
 const getDataProvider = async (session: any = {}) => {
   const hasuraHeaders: any = {};
@@ -32,7 +33,7 @@ const getDataProvider = async (session: any = {}) => {
   if (session.role) hasuraHeaders["x-hasura-role"] = session.role;
 
   const apolloClient = new ApolloClient({
-    uri: process.env.NEXT_PUBLIC_HASURA_URL,
+    uri: hasuraURL,
     cache: new InMemoryCache(),
     headers: hasuraHeaders,
   });

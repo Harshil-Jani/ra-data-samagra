@@ -3,6 +3,14 @@ import getDataProvider from "./customDataProviders";
 import jsonServerProvider from "ra-data-json-server";
 import { EsamwaadUserDataProvider } from "./customDataProviders/userDataProviders";
 
+export const baseURL = (NEXT_PUBLIC_API_URL) => {
+    return NEXT_PUBLIC_API_URL
+}
+export const hasuraURL = (NEXT_HASURA_URL) => {
+  return NEXT_HASURA_URL;
+}
+/* Example of Session 
+
 const session: any = {
   user: {
     name: null,
@@ -19,18 +27,20 @@ const session: any = {
   applicationId: "f0ddb3f6-091b-45e4-8c0f-889f89d4f5da",
 };
 
+*/
 const JSONDp = jsonServerProvider("https://jsonplaceholder.typicode.com");
-const hasuraDP = await getDataProvider(session);
+export const hasuraDP: any = async (userSession) => await getDataProvider(userSession);
 const JSONDataProvider = {
   ...JSONDp,
   updateSamarthUser: (...r: any) => {},
 };
-const _dataProvider = combineDataProviders((resource) => {
+
+export const samagraAdminDataProvider = combineDataProviders((resource) => {
   switch (resource) {
     case "teacher":
     case "school":
     case "student":
-    case "deadline":
+    case "deadlfine":
     case "submission_type":
     case "location":
     case "ss_school_allocation_data":

@@ -18,18 +18,58 @@ const dataProvider = {
     resource: any,
     { pagination: { page, perPage }, filter }: any
   ): Promise<any> => {
-    const queryString = [
-      `registrations.applicationId:${Applications[resource]}`,
-    ];
-    if (filter?.udise) {
-      queryString.push(`${filter?.udise}`);
+    let queryString = [`registrations.applicationId:${Applications[resource]}`];
+    const userData: any = window.localStorage.getItem("userData");
+    const roleName: any = JSON.parse(userData)?.user?.user?.registrations[0]?.roles[0];
+
+    if (resource == "shiksha_saathi_user") {
+      switch (roleName) {
+        case "District Admin":
+          const userDistrict = JSON.parse(userData)?.user?.user?.registrations[0]?.data?.roleData?.district;
+          queryString = [`registrations.applicationId:${Applications[resource]} AND data.roleData.district: ${userDistrict}`];
+          break
+        case "Block Admin":
+          const userBlock = JSON.parse(userData)?.user?.user?.registrations[0]?.data?.roleData?.block;
+          queryString = [`registrations.applicationId:${Applications[resource]} AND data.roleData.block: ${userBlock}`];
+          break
+      }
     }
 
-    if (filter?.role) {
-      queryString.push(`registrations.roles :${filter?.role}`);
+    // Pass the UDISES as per Esamwaad Roles Access in the below array.
+    // const UDISES = [2100600104, 110, 2080210301].join(" ");
+    if (resource == "e_samwaad_user") {
+      // queryString = [`registrations.applicationId:${Applications[resource]} AND data.udise: (${UDISES})`]
+      queryString = [`registrations.applicationId:${Applications[resource]}`]
     }
-    if (filter?.username) {
-      queryString.push(`,username=${filter?.username}`);
+
+    if (filter && Object.keys(filter).length > 0) {
+      if (filter?.udise) {
+        queryString.push(`${filter?.udise}`);
+      }
+
+      if (filter?.shikshaRoles) {
+        queryString.push(`registrations.roles:%22${filter?.shikshaRoles}%22`);
+      }
+      if (filter?.esamwadRoles) {
+        queryString.push(`registrations.roles:${filter?.esamwadRoles}`);
+      }
+      if (filter?.data?.roleData?.district) {
+        queryString.push(
+          `data.roleData.district:${filter?.data?.roleData?.district}`
+        );
+      }
+      if (filter?.block) {
+        queryString.push(`data.roleData.block:"${filter?.block}"`);
+      }
+      if (filter?.cluster) {
+        queryString.push(`data.roleData.cluster:"${filter?.cluster}"`);
+      }
+      if (filter?.username) {
+        queryString.push(
+          `username:${filter?.username} OR username:*${filter?.username}*`
+        );
+        // queryString.push(``);
+      }
     }
     const params = {
       startRow: (page - 1) * perPage,
@@ -52,13 +92,26 @@ const dataProvider = {
   },
   getOne: async (resource: any, { id }: any): Promise<any> => {
     const params = {
-      queryString: id,
+      queryString: id
     };
     const response = await client.get("/admin/searchUser", { params });
 
     if (response?.data?.result) {
       return {
-        data: response?.data?.result?.users[0],
+        data: response?.data?.result?.users?.filter((el: any) => el.id == id)?.[0],
+      };
+    }
+    return response;
+  },
+  getUserByUdise: async (resource: any, { id }: any): Promise<any> => {
+    const params = {
+      queryString: `(registrations.applicationId:f0ddb3f6-091b-45e4-8c0f-889f89d4f5da) AND (registrations.roles:school) AND (data.udise: ${id})`,
+    };
+    const response = await client.get("/admin/searchUser", { params });
+
+    if (response?.data?.result) {
+      return {
+        data: response?.data?.result?.users
       };
     }
     return response;
@@ -82,15 +135,15 @@ const dataProvider = {
     delete data["id"];
     try {
       const response = await client.patch("/admin/updateUser/" + id, data);
-      if (d) {
-        await clientGQL(UPDATE_USER_BY_ID_QUERY, { object: d, id: id });
-      }
+      // if (d) {
+      //   await clientGQL(UPDATE_USER_BY_ID_QUERY, { object: d, id: id });
+      // }
       if (response?.data?.result) {
         return {
           data: response?.data?.result,
         };
       }
-    } catch (e) {}
+    } catch (e) { }
     throw new Error("Unable to update");
   },
 };
